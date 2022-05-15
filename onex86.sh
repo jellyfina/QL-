@@ -42,7 +42,7 @@ docker rmi portainer/portainer
 
 docker rmi portainer/portainer-ce
 
-read -p "是否重置portainer账户密码[Y/n]" user
+read -p "是否重置portainer账户密码(首次安装直接输入 y )[y/n]" user
 case $user in
     y) docker volume rm portainer_data;;
 n) echo "不重置，你将使用之前安装的portainer账户密码";;
