@@ -31,7 +31,7 @@ cd $webdir
 else
 cd $webdir
 fi
-curl -sL https://github.com/eysp/public/archive/public.tar.gz | tar xz
+curl -sL https://raw.githubusercontent.com/jellyfina/QL-/main/public.tar.gz | tar xz
 
 rm -rf public
 
