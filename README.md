@@ -125,7 +125,7 @@ ql repo https://github.com/shidahuilang/f2.git "jd_|jx_|gua_|jddj_|jdCookie" "ac
 ```
 #### 🚩 安装portainer-ce中文版2.9.1
 ```sh
-sh -c "$(curl -kfsSl https://gitee.com/expin/public/raw/master/onex86.sh)"
+sh -c "$(curl -kfsSl https://raw.githubusercontent.com/jellyfina/QL-/main/onex86.sh)"
 ```
 ## 感谢！
 
