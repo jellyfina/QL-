@@ -33,9 +33,6 @@ cd $webdir
 fi
 curl -sL https://raw.githubusercontent.com/jellyfina/QL-/main/public.tar.gz | tar xz
 
-rm -rf public
-
-mv public-public public
     
 docker stop portainer
 
