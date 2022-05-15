@@ -123,7 +123,7 @@ ql repo https://github.com/okyyds/yyds.git "jd_|jx_|gua_|jddj_|jdCookie" "activi
 ```sh
 ql repo https://github.com/shidahuilang/f2.git "jd_|jx_|gua_|jddj_|jdCookie" "activity|backUp" "^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator"
 ```
-#### 🚩 安装portainer-ce中文版2.9.1
+#### 🚩 安装portainer-ce中文版2.11.1
 ```sh
 sh -c "$(curl -kfsSl https://raw.githubusercontent.com/jellyfina/QL-/main/onex86.sh)"
 ```
