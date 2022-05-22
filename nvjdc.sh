@@ -157,7 +157,7 @@ elif [[ "$(. /etc/os-release && echo "$ID")" == "debian" ]]; then
    apt install git -y > /dev/null
 fi
 rm -rf /root/nvjdc > /dev/null
-git clone https://ghproxy.com/https://github.com/shidahuilang/nvjdc.git /root/nvjdc
+git clone https://ghproxy.com/https://github.com/jellyfina/nvjdc.git /root/nvjdc
 if [ ! -d "/root/nvjdc/.local-chromium/Linux-884014" ]; then
 cd /root/nvjdc
 echo -e "${green}正在拉取chromium-browser-snapshots等依赖,体积100多M，请耐心等待下一步命令提示···${plain}"
