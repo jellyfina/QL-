@@ -656,5 +656,12 @@ memu() {
   esac
   done
 }
-
+[[ -f /etc/bianliang.sh ]] && source /etc/bianliang.sh
+if [[ `docker images |grep -c "qinglong"` -ge '1' ]] && [[ `docker images |grep -c "nvjdc"` -ge '1' ]] && [[ -f ${rwwc} ]] && [[ -f ${nvrwwc} ]]; then
+  memunvjdc "$@"
+elif [[ `docker images | grep -c "qinglong"` -ge '1' ]] && [[ -f ${rwwc} ]]; then
+  memuqinglong "$@"
+else
+  memu "$@"
+fi
 
