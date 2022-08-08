@@ -23,24 +23,11 @@ yum install -y curl
 #
 - 国外鸡地址，执行下面一键命令安装青龙+依赖+任务+NVJDC自由选择（安装完毕后再次使用命令可以对应用进行升级）
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/shidahuilang/QL-/main/lang1.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/jellyfina/QL-/main/lang1.sh)"
 ```
 - 国内鸡地址，执行下面一键命令安装青龙+依赖+任务+NVJDC自由选择（安装完毕后再次使用命令可以对应用进行升级）
 ```sh
-bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/lang1.sh)"
-```
-#
-- 单独安装rabbit一键脚本
-```sh
-bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/rabbit.sh)"
-```
-- 单独安装NVJDC一键脚本（懒得升级修改，凑合用）
-```sh
-bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/nvjdc.sh)"
-```
-- 单独安装阿东一键脚本（免费有限制，一天扫码2次，低调使用，如有批量需求，请捐赠原作者）
-```sh
-bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/adong/adong.sh)"
+bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/jellyfina/QL-/main/lang1.sh)"
 ```
 
 ## 第二步
@@ -107,21 +94,17 @@ canvas
 
 - 一键单独安装docker
 ```sh
-bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/docker.sh)"
+bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/jellyfina/QL-/main/docker.sh)"
 ```
 
 - 一键安装单独青龙的依赖
 ```sh
-docker exec -it qinglong bash -c  "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/shidahuilang/QL-/main/npm.sh)"
+docker exec -it qinglong bash -c  "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/jellyfina/QL-/main/npm.sh)"
 ```
 #### 🚩 单独F2拉库
 YYDS库
 ```sh
-ql repo https://github.com/okyyds/yyds.git "jd_|jx_|gua_|jddj_|jdCookie" "activity|backUp" "^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator" "master"
-```
-大灰狼备份库
-```sh
-ql repo https://github.com/shidahuilang/f2.git "jd_|jx_|gua_|jddj_|jdCookie" "activity|backUp" "^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator"
+ql repo https://git.metauniverse-cn.com/https://github.com/shufflewzc/faker2.git "jd_|jx_|gua_|jddj_|jdCookie" "activity|backUp" "^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator|magic|depend" "main"
 ```
 #### 🚩 安装portainer-ce中文版2.11.1
 ```sh
@@ -131,9 +114,7 @@ sh -c "$(curl -kfsSl https://raw.githubusercontent.com/jellyfina/portainer-ce/ma
 
 
 > [`whyour`]
-> [`NolanHzy`]
 > [`danshui`]
-> [`feverrun`]
 > [`Aaron-lv`]
 > [`faker2`] 
 
