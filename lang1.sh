@@ -2,9 +2,9 @@
 
 #====================================================
 #	System Request:Ubuntu 18.04+/20.04+
-#	Author:	dahuilang
+#	Author:	jellyfina
 #	Dscription: qinglong onekey Management
-#	github: https://github.com/shidahuilang
+#	github: https://github.com/jellyfina
 #====================================================
 
 # 字体颜色配置
@@ -461,20 +461,20 @@ function OpenApi_Client() {
 function Google_Check() {
   export Google_Check=$(curl -I -s --connect-timeout 8 google.com -w %{http_code} | tail -n1)
   if [ ! "$Google_Check" == 301 ];then
-    export curlurl="https://cdn.jsdelivr.net/gh/shidahuilang/QL-@main"
+    export curlurl="https://cdn.jsdelivr.net/gh/jellyfina/QL-@main"
     export GithubProxyUrl="https://ghproxy.com/"
     ECHORR "访问谷歌失败，以下使用代理安装"
     sleep 2
     echo "
-    export curlurl="https://cdn.jsdelivr.net/gh/shidahuilang/QL-@main"
+    export curlurl="https://cdn.jsdelivr.net/gh/jellyfina/QL-@main"
     export GithubProxyUrl="https://ghproxy.com/"
     " > ${Current}/ghproxy.sh
     sed -i "s/^[ \t]*//g" ${Current}/ghproxy.sh
   else
-    export curlurl="https://raw.githubusercontent.com/shidahuilang/QL-/main"
+    export curlurl="https://raw.githubusercontent.com/jellyfina/QL-/main"
     export GithubProxyUrl=""
     echo "
-    export curlurl="https://raw.githubusercontent.com/shidahuilang/QL-/main"
+    export curlurl="https://raw.githubusercontent.com/jellyfina/QL-/main"
     export GithubProxyUrl=""
     " > ${Current}/ghproxy.sh
     sed -i "s/^[ \t]*//g" ${Current}/ghproxy.sh
@@ -537,7 +537,7 @@ memuqinglong() {
     docker exec -it qinglong bash -c "ql resetlet"
     sleep 2
     docker exec -it qinglong bash -c "ql check"
-    bash -c "$(curl -fsSL https://cdn.jsdelivr.net/gh/shidahuilang/QL-@main/timesync.sh)"
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/QL-@main/timesync.sh)"
     print_ok "命令执行完成"
   break
   ;;
