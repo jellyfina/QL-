@@ -659,7 +659,6 @@ memu() {
   done
 }
 [[ -f /etc/bianliang.sh ]] && source /etc/bianliang.sh
-if [[ `docker images |grep -c "qinglong"` -ge '1' ]]; then
 
 elif [[ `docker images | grep -c "qinglong"` -ge '1' ]]; then
   memuqinglong "$@"
