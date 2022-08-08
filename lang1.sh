@@ -658,10 +658,5 @@ memu() {
   esac
   done
 }
-[[ -f /etc/bianliang.sh ]] && source /etc/bianliang.sh
-elif [[ `docker images | grep -c "qinglong"` -ge '1' ]]; then
-  memuqinglong "$@"
-else
-  memu "$@"
-fi
+
 
