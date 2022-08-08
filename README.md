@@ -65,28 +65,41 @@ pt_key=您的pt_key值;pt_pin=您的账号;
 #### 🚩 青龙面板安装依赖方法
 - ####  依赖管理 --> 添加依赖 --> 依赖类型(NodeJs) --> 自动拆分(是) --> 名称(把下面依赖名称全复制粘贴) --> 确定 
 ```sh
-date-fns
-axios
-ts-node
-typescript
-png-js
 crypto-js
-md5
+prettytable
 dotenv
-got
-ts-md5
-tslib
-@types/node
-requests
-tough-cookie
 jsdom
-download
-tunnel
-fs
-ws
-js-base64
+date-fns
+tough-cookie
+tslib
+ws@7.4.3
+ts-md5
+jsdom -g
 jieba
-canvas
+fs
+form-data
+json5
+global-agent
+png-js
+@types/node
+require
+typescript
+js-base64
+axios
+```
+- ####  依赖管理 --> 添加依赖 --> 依赖类型(Python3) --> 自动拆分(是) --> 名称(把下面依赖名称全复制粘贴) --> 确定 
+```sh
+requests
+canvas  
+ping3
+jieba
+aiohttp
+```
+- ####  依赖管理 --> 添加依赖 --> 依赖类型(Linux) --> 自动拆分(是) --> 名称(把下面依赖名称全复制粘贴) --> 确定 
+```sh
+bizCode
+bizMsg  
+lxml
 ```
 #
 #### 🚩 单独安装某项的一键脚本
@@ -101,8 +114,8 @@ bash -c "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/jell
 ```sh
 docker exec -it qinglong bash -c  "$(curl -fsSL https://ghproxy.com/https://raw.githubusercontent.com/jellyfina/QL-/main/npm.sh)"
 ```
-#### 🚩 单独F2拉库
-YYDS库
+#### 🚩 单独faker2拉库
+faker2库
 ```sh
 ql repo https://git.metauniverse-cn.com/https://github.com/shufflewzc/faker2.git "jd_|jx_|gua_|jddj_|jdCookie" "activity|backUp" "^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator|magic|depend" "main"
 ```
