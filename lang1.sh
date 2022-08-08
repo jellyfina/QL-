@@ -969,7 +969,7 @@ memuaz() {
   3)
     export Api_Client="false"
     export Npm_yilai="true"
-    export Sys_kj="5"
+    export Sys_kj="2"
     export Ql_nvjdc=""
     ECHOG " 安装青龙+任务+依赖"
     azqinglong
