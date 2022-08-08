@@ -102,7 +102,7 @@ function qinglong_port() {
   ;;
   esac
   done
-  export local_ip="$(curl -sS --connect-timeout 10 -m 60 https://www.bt.cn/Api/getIpAddress)"
+  export local_ip="$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\." | head -n 1)"
   export YUMING="请输入您当前服务器的IP[比如：${local_ip}]"
   echo
   echo
@@ -450,183 +450,7 @@ function install_yanzheng() {
   print_ok "任务安装完成，请刷新青龙面板查看"
 }
 
-function jiance_nvjdc() {
-  if [[ `docker images | grep -c "nvjdc"` -ge '1' ]] || [[ `docker ps -a | grep -c "nvjdc"` -ge '1' ]]; then
-    ECHOY "检测到nvjdc面板，正在卸载nvjdc面板，请稍后..."
-    dockernv=$(docker ps -a|grep nvjdc) && dockernvid=$(awk '{print $(1)}' <<<${dockernv})
-    imagesnv=$(docker images|grep nvjdc) && imagesnvid=$(awk '{print $(3)}' <<<${imagesnv})
-    docker stop -t=5 "${dockernvid}" > /dev/null 2>&1
-    docker rm "${dockernvid}"
-    docker rmi "${imagesnvid}"
-    find / -iname 'nolanjdc' | xargs -i rm -rf {} > /dev/null 2>&1
-    find / -iname 'nvjdc' | xargs -i rm -rf {} > /dev/null 2>&1
-    if [[ `docker images | grep -c "nvjdc"` == '0' ]]; then
-      print_ok "nvjdc面板卸载完成"
-    else
-      print_error "nvjdc面板卸载失败"
-      exit 1
-    fi
-  fi
-}
 
-function git_clone() {
-  ECHOG "开始安装nvjdc面板，请稍后..."
-  ECHOY "下载nvjdc源码"
-  rm -rf "${Home}" && git clone ${GithubProxyUrl}https://github.com/shidahuilang/nvjdc.git ${Home}
-  judge "nvjdc源码下载"
-}
-
-function pull_nvjdc() {
-  ECHOY "安装nvjdc镜像中，安装需要时间，请耐心等候..."
-  docker pull shidahuilang/nvjdc:2.4
-  if [[ `docker images | grep -c "nvjdc"` -ge '1' ]]; then
-    print_ok "nvjdc镜像安装 完成"
-  else
-    print_error "nvjdc镜像安装失败"
-    exit 1
-  fi
-}
-
-function Config_json() {
-  mkdir -p ${Config}
-  bash -c  "$(curl -fsSL ${curlurl}/json.sh)"
-  judge "自动配置nvjdc的Config.json文件"
-  chmod +x ${Config}/Config.json
-}
-
-function chrome_linux() {
-  ECHOY "下载chrome-linux"
-  mkdir -p ${Chromium} && cd ${Chromium}
-  wget https://mirrors.huaweicloud.com/chromium-browser-snapshots/Linux_x64/884014/chrome-linux.zip
-  judge "chrome-linux下载"
-  ECHOY "解压chrome-linux文件包，请稍后..."
-  unzip chrome-linux.zip
-  if [[ ! -d ${Chromium}/chrome-linux ]]; then
-    print_error "chrome-linux文件解压失败"
-    exit 1
-  else
-    print_ok "解压chrome-linux文件 完成"
-    rm  -f chrome-linux.zip
-  fi
-}
-
-function linux_nolanjdc() {
-  ECHOY "启动镜像中，请稍后..."
-  cd ${Current}
-  if [[ -f /etc/openwrt_release ]] && [[ -f /rom/etc/openwrt_release ]]; then
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  ${Home}:/app \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-    docker exec -it nolanjdc bash -c "cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
-    /etc/init.d/dockerman restart > /dev/null 2>&1
-    /etc/init.d/dockerd restart > /dev/null 2>&1
-    sleep 3
-  elif [[ "$(. /etc/os-release && echo "$ID")" == "alpine" ]]; then
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  ${Home}:/app \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-    docker exec -it nolanjdc bash -c "cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
-    sleep 2
-  else
-    cd  ${Home}
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  "$(pwd)":/app \
-    -v /etc/localtime:/etc/localtime:ro \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-    sleep 2
-  fi
-  cd ${Current}
-  if [[ `docker ps -a | grep -c "nvjdc"` -ge '1' ]]; then
-    docker restart nolanjdc > /dev/null 2>&1
-    docker restart qinglong > /dev/null 2>&1
-    sleep 3
-    print_ok "nvjdc镜像启动成功"
-  else
-    print_error "nvjdc镜像启动失败"
-    exit 1
-  fi
-  dockernv=$(docker ps -a|grep nvjdc) && dockernvid=$(awk '{print $(1)}' <<<${dockernv})
-  docker update --restart=always "${dockernvid}" > /dev/null 2>&1
-  rm -rf ${Home}/build.log
-  timeout 4 docker logs -f nolanjdc |tee ${Home}/build.log
-  timeout 9 docker logs -f nolanjdc |tee ${Home}/build.log
-  if [[ `grep -c "启动成功" ${Home}/build.log` -ge '1' ]] || [[ `grep -c "NETJDC started" ${Home}/build.log` -ge '1' ]]; then
-    print_ok "nvjdc安装 完成"
-    ECHOYY "nvjdc配置已自动配置完成，如您需修改可至 ${Config}/Config.json 修改!"
-  else
-    print_error "nvjdc安装失败"
-    exit 1
-  fi
-  rm -rf ${Home}/build.log
-  ECHOY "您的nvjdc面板地址为：http://${IP}:${JDC_PORT}"
-}
-
-function up_nvjdc() {
-  cd ${Current}
-  [[ -f /etc/bianliang.sh ]] && source /etc/bianliang.sh
-  ECHOY "下载nvjdc源码"
-  rm -rf ${QL_PATH}/nvjdcbf
-  cp -Rf ${Home} ${QL_PATH}/nvjdcbf
-  rm -rf "${Home}" && git clone ${GithubProxyUrl}https://github.com/shidahuilang/nvjdc.git ${Home}
-  judge "下载源码"
-  cp -Rf ${QL_PATH}/nvjdcbf/Config ${Home}/Config
-  cp -Rf ${QL_PATH}/nvjdcbf/.local-chromium ${Home}/.local-chromium
-  if [[ `docker images | grep -c "nvjdc"` -ge '1' ]] || [[ `docker ps -a | grep -c "nvjdc"` -ge '1' ]]; then
-    ECHOY "卸载nvjdc镜像"
-    dockernv=$(docker ps -a|grep nvjdc) && dockernvid=$(awk '{print $(1)}' <<<${dockernv})
-    imagesnv=$(docker images|grep nvjdc) && imagesnvid=$(awk '{print $(3)}' <<<${imagesnv})
-    docker stop -t=5 "${dockernvid}" > /dev/null 2>&1
-    docker rm "${dockernvid}"
-    docker rmi "${imagesnvid}"
-  fi
-  if [[ `docker images | grep -c "nvjdc"` == '0' ]]; then
-    print_ok "nvjdc镜像卸载完成"
-  else
-    print_error "nvjdc镜像卸载失败，再次尝试删除"
-  fi
-  cd ${Current}
-  ECHOG "更新镜像，请耐心等候..."
-  sudo docker pull shidahuilang/nvjdc:2.4
-  ECHOY "启动镜像"
-  if [[ -f /etc/openwrt_release ]] && [[ -f /rom/etc/openwrt_release ]]; then
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  ${Home}:/app \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-    docker exec -it nolanjdc bash -c "cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
-    /etc/init.d/dockerman restart > /dev/null 2>&1
-    /etc/init.d/dockerd restart > /dev/null 2>&1
-    sleep 3
-  elif [[ "$(. /etc/os-release && echo "$ID")" == "alpine" ]]; then
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  ${Home}:/app \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-    docker exec -it nolanjdc bash -c "cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
-    sleep 2
-  else
-    cd  ${Home}
-    docker run   --name nolanjdc -p ${JDC_PORT}:80 -d  -v  "$(pwd)":/app \
-    -v /etc/localtime:/etc/localtime:ro \
-    -it --privileged=true  shidahuilang/nvjdc:2.4
-  fi
-  cd ${Current}
-  if [[ `docker ps -a | grep -c "nvjdc"` -ge '1' ]]; then
-    docker restart nolanjdc > /dev/null 2>&1
-    docker restart qinglong > /dev/null 2>&1
-    sleep 5
-    print_ok "nvjdc镜像启动成功"
-  else
-    print_error "nvjdc镜像启动失败"
-    exit 1
-  fi
-  dockernv=$(docker ps -a|grep nvjdc) && dockernvid=$(awk '{print $(1)}' <<<${dockernv})
-  docker update --restart=always "${dockernvid}" > /dev/null 2>&1
-  rm -rf ${Home}/build.log
-  timeout 4 docker logs -f nolanjdc |tee ${Home}/build.log
-  timeout 9 docker logs -f nolanjdc |tee ${Home}/build.log
-  if [[ `grep -c "启动成功" ${Home}/build.log` -ge '1' ]] || [[ `grep -c "NETJDC started" ${Home}/build.log` -ge '1' ]]; then
-    print_ok "nvjdc升级完成"
-  else
-    print_error "nvjdc升级失败"
-    exit 1
-  fi
-  rm -rf ${Home}/build.log
-  exit 0
-}
 
 function OpenApi_Client() {
   export MANEID="$(grep 'name' ${QL_PATH}/ql/db/app.db |awk 'END{print}' |sed -r 's/.*name\":\"(.*)\"/\1/' |cut -d "\"" -f1)"
@@ -657,56 +481,6 @@ function Google_Check() {
   fi
 }
 
-function config_bianliang() {
-  echo "
-  export IP="${IP}"
-  export QL_PATH="${QL_PATH}"
-  export QL_PORT="${QL_PORT}"
-  export JDC_PORT="${JDC_PORT}"
-  export QLurl="http://${IP}:${QL_PORT}"
-  export CAPACITY="${CAPACITY}"
-  export PUSHPLUS="${PUSHPLUS}"
-  export CLIENTID="${CLIENTID}"
-  export CLIENTID_SECRET="${CLIENTID_SECRET}"
-  export Home="${Home}"
-  export Config="${Config}"
-  export Chromium="${Chromium}"
-  export nvrwwc="${Home}/rwwc"
-  " >> /etc/bianliang.sh
-  sed -i "s/^[ \t]*//g" /etc/bianliang.sh
-  chmod +x /etc/bianliang.sh
-  [[ -d ${Home} ]] && echo "${Home}/rwwc" > ${Home}/rwwc
-}
-
-function aznvjdc() {
-  jiance_nvjdc
-  git_clone
-  pull_nvjdc
-  Config_json
-  chrome_linux
-  linux_nolanjdc
-  config_bianliang
-}
-
-function qinglong_nvjdc() {
-  qinglong_port
-  Google_Check
-  system_check
-  kaiqiroot_ssh
-  nolanjdc_lj
-  system_docker
-  systemctl_status
-  uninstall_qinglong
-  jiance_nvjdc
-  sys_kongjian
-  install_ql
-  qinglong_dl
-  ql_qlbeifen
-  OpenApi_Client
-  install_rw
-  install_yanzheng
-  aznvjdc
-}
 
 function azqinglong() {
   qinglong_port
@@ -716,8 +490,6 @@ function azqinglong() {
   system_docker
   systemctl_status
   uninstall_qinglong
-  jiance_nvjdc
-  sys_kongjian
   install_ql
   qinglong_dl
   ql_qlbeifen
@@ -726,103 +498,6 @@ function azqinglong() {
   config_bianliang
 }
 
-memunvjdc() {
-  clear
-  echo
-  echo
-  ECHOB " 1. 升级青龙面板"
-  ECHOB " 2. 更新撸豆脚本库"
-  ECHOB " 3. 升级nvjdc面板"
-  ECHOB " 4. 重启青龙和nvjdc"
-  ECHOB " 5. 重置青龙登录错误次数和检测环境并修复"
-  ECHOB " 6. 卸载nvjdc面板"
-  ECHOB " 7. 卸载青龙+nvjdc面板"
-  ECHOB " 8. 进入第一主菜单（安装界面）"
-  ECHOB " 9. 退出程序!"
-  echo
-  scqlbianmaa="输入您选择的编码"
-  while :; do
-  read -p " ${scqlbianmaa}： " MVQLJB
-  case $MVQLJB in
-  1)
-    ECHOG "正在检测更新青龙面板,请耐心等候..."
-    docker exec -it qinglong ql update
-  break
-  ;;
-  2)
-    ECHOY "正在更新任务，请耐心等候..."
-    docker exec -it qinglong bash -c "ql extra"
-  break
-  ;;
-  3)
-    ECHOY "开始升级nvjdc面板，请耐心等候..."
-    Google_Check
-    up_nvjdc
-  break
-  ;;
-  4)
-    ECHOY "重启nvjdc和青龙，请耐心等候..."
-    docker restart nolanjdc
-    docker restart qinglong
-    sleep 5
-    print_ok "命令执行完成"
-  break
-  ;;
-  5)
-    ECHOY "开始重置青龙登录错误次数和检测环境并修复，请耐心等候..."
-    docker exec -it qinglong bash -c "ql resetlet"
-    sleep 2
-    docker exec -it qinglong bash -c "ql check"
-    bash -c "$(curl -fsSL https://cdn.jsdelivr.net/gh/shidahuilang/QL-@main/timesync.sh)"
-    print_ok "命令执行完成"
-  break
-  ;;
-  6)
-    ECHOY " 是否卸载nvjdc面板?"
-    read -p " 是否卸载nvjdc面板?输入[Yy]回车确认,直接回车返回菜单：" YZJDC
-    case $YZJDC in
-    [Yy])
-      ECHOG " 正在卸载nvjdc面板"
-      jiance_nvjdc
-    ;;
-    *)
-      memunvjdc "$@"
-    ;;
-    esac
-  break
-  ;;
-  7)
-    ECHOY " 是否卸载青龙+nvjdc面板?"
-    read -p " 是否卸载青龙+nvjdc面板?输入[Yy]回车确认,直接回车返回菜单：" YZQLNV
-    case $YZQLNV in
-    [Yy])
-      ECHOG "正在卸载青龙+nvjdc面板"
-      uninstall_qinglong
-      jiance_nvjdc
-      rm -rf /etc/bianliang.sh
-    ;;
-    *)
-      memunvjdc "$@"
-    ;;
-    esac
-  break
-  ;;
-  8)
-    memu
-  break
-  ;;
-  9)
-    ECHOR "您选择了退出程序!"
-    sleep 1
-    exit 1
-  break
-  ;;
-  *)
-    scqlbianmaa="请输入正确的编码"
-  ;;
-  esac
-  done
-}
 
 memuqinglong() {
   clear
@@ -904,35 +579,16 @@ memuaz() {
   echo
   echo
   [[ -n "${kugonggao}" ]] && ECHOY " ${kugonggao}"
-  ECHOB " 1. 安装青龙+任务+依赖+nvjdc面板"
-  ECHOB " 2. 安装青龙+任务+nvjdc面板（依赖自行在青龙面板安装）"
-  ECHOB " 3. 安装青龙+任务+依赖"
-  ECHOB " 4. 安装青龙+任务（依赖自行在青龙面板安装）"
-  ECHOB " 5. 退出安装程序!"
+  ECHOB " 1. 安装青龙+任务+依赖"
+  ECHOB " 2. 安装青龙+任务（依赖自行在青龙面板安装）"
+  ECHOB " 3. 退出安装程序!"
   echo
   scqlbianmaa="输入您选择的编码"
   while :; do
   read -p " ${scqlbianmaa}： " QLJB
   case $QLJB in
+
   1)
-    export Api_Client="true"
-    export Npm_yilai="true"
-    export Sys_kj="10"
-    export Ql_nvjdc="和nvjdc面板"
-    ECHOG " 安装青龙+任务+依赖+nvjdc面板"
-    qinglong_nvjdc
-  break
-  ;;
-  2)
-    export Api_Client="true"
-    export Npm_yilai="false"
-    export Sys_kj="10"
-    export Ql_nvjdc="和nvjdc面板"
-    ECHOG " 安装青龙+任务+nvjdc面板（依赖自行在青龙面板安装）"
-    qinglong_nvjdc
-  break
-  ;;
-  3)
     export Api_Client="false"
     export Npm_yilai="true"
     export Sys_kj="2"
@@ -941,7 +597,7 @@ memuaz() {
     azqinglong
   break
   ;;
-  4)
+  2)
     export Api_Client="false"
     export Npm_yilai="false"
     export Sys_kj="2"
@@ -950,7 +606,7 @@ memuaz() {
     azqinglong
   break
   ;;
-  5)
+  3)
     ECHOR "您选择了退出程序!"
     sleep 1
     exit 1
@@ -973,13 +629,11 @@ memu() {
   ECHORR "自动检测docker，有则跳过，无则安装，openwrt则请自行安装docker，如果空间太小请挂载好硬盘"
   ECHORR "如果您以前安装有青龙的话，则自动删除您的青龙容器和镜像，全部推倒重新安装"
   ECHORR "如果安装当前文件夹已经存在 ql 文件的话，如果您的[环境变量文件]符合要求，就会继续使用，免除重新输入KEY的烦恼"
-  ECHORR "nvjdc面板可以进行手机验证挂机，无需复杂的抓KEY，如果是外网架设的话，任何人都可以用您的nvjdc面板进入您的青龙挂机"
   ECHORR "安装过程会有重启docker操作，如不能接受，请退出安装"
   echo
   ECHOY " 请选择您要安装什么类型的任务库"
-  ECHOB " 1. TG机器人每周提交助力码库（shufflewzc/和YYDS）库"
-  ECHOB " 2. 自动提交助力码库,要去库的作者那里提交资料过白名单（feverrun/my_scripts）单库"
-  ECHOB " 3. 退出安装程序!"
+  ECHOB " 1. TG机器人每周提交助力码库（faker2）库"
+  ECHOB " 2. 退出安装程序!"
   echo
   scqlanmaa="输入您选择的编码"
   while :; do
@@ -988,18 +642,11 @@ memu() {
   1)
     export wjmz="Aaron-lv"
     export Sh_Path="Aaron-lv.sh"
-    export kugonggao="您库的选择：shufflewzc/YYDS"
+    export kugonggao="您库的选择：faker2"
     memuaz
   break
   ;;
   2)
-    export wjmz="feverrun"
-    export Sh_Path="feverrun.sh"
-    export kugonggao="您库的选择：feverrun/my_scripts"
-    memuaz
-  break
-  ;;
-  3)
     ECHOR "您选择了退出程序!"
     sleep 1
     exit 1
@@ -1012,9 +659,9 @@ memu() {
   done
 }
 [[ -f /etc/bianliang.sh ]] && source /etc/bianliang.sh
-if [[ `docker images |grep -c "qinglong"` -ge '1' ]] && [[ `docker images |grep -c "nvjdc"` -ge '1' ]] && [[ -f ${rwwc} ]] && [[ -f ${nvrwwc} ]]; then
+if [[ `docker images |grep -c "qinglong"` -ge '1' ]]; then
   memunvjdc "$@"
-elif [[ `docker images | grep -c "qinglong"` -ge '1' ]] && [[ -f ${rwwc} ]]; then
+elif [[ `docker images | grep -c "qinglong"` -ge '1' ]]; then
   memuqinglong "$@"
 else
   memu "$@"
