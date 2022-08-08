@@ -338,15 +338,7 @@ function sys_kongjian() {
       sleep 1
       exit 1
     fi
-    Ubuntu_kj="$(df -h|grep -v tmpfs |grep "/dev/.*" |awk '{print $2}' |awk 'NR==1' |sed 's/.$//g')"
-    Kongjian="$(awk -v num1=${Ubuntu_kj} -v num2=${Sys_kj} 'BEGIN{print(num1>num2)?"0":"1"}')"
-    ECHOY "您当前系统可用空间为${Ubuntu_kj}G"
-    if [[ "${Kongjian}" == "1" ]];then
-      print_error "敬告：可用空间小于[ ${Sys_kj}G ]，不支持安装青龙${Ql_nvjdc}，请加大磁盘空间"		
-      sleep 1
-      exit 1
-    fi
-  fi
+
 }
 
 function install_ql() {
