@@ -314,32 +314,6 @@ function uninstall_qinglong() {
   fi
 }
 
-function sys_kongjian() {
-  if [[ -f /etc/openwrt_release ]] && [[ -f /rom/etc/openwrt_release ]]; then
-    Available="$(df -h | grep "${QL_Kongjian}" | awk '{print $2}' | awk 'NR==1')"
-    FINAL=`echo ${Available: -1}`
-    if [[ "${FINAL}" =~ (M|K) ]]; then
-      print_error "敬告：可用空间小于[ ${Sys_kj}G ]，不支持安装青龙${Ql_nvjdc}，请挂载大点磁盘空间容量"
-      exit 1
-    fi
-      Overlay_Available="$(df -h | grep "${QL_Kongjian}" | awk '{print $2}' | awk 'NR==1' | sed 's/.$//g')"
-      Kongjian="$(awk -v num1=${Overlay_Available} -v num2=${Sys_kj} 'BEGIN{print(num1>num2)?"0":"1"}')"
-      ECHOY "您当前系统可用空间为${Overlay_Available}G"
-    if [[ "${Kongjian}" == "1" ]];then
-      print_error "敬告：可用空间小于[ ${Sys_kj}G ]，不支持安装青龙${Ql_nvjdc}，请挂载大点磁盘空间容量"
-      sleep 1
-      exit 1
-    fi
-  else
-    Ubunkj="$(df -h|grep -v tmpfs |grep "/dev/.*" |awk '{print $2}' |awk 'NR==1')"
-    FINAL=`echo ${Ubunkj: -1}`
-    if [[ "${FINAL}" =~ (M|K) ]]; then
-      print_error "敬告：可用空间小于[ ${Sys_kj}G ]，不支持安装青龙${Ql_nvjdc}，请加大磁盘空间容量"
-      sleep 1
-      exit 1
-    fi
-
-}
 
 function install_ql() {
   ECHOG "正在安装青龙面板，请稍后..."
