@@ -86,6 +86,7 @@ require
 typescript
 js-base64
 axios
+moment
 ```
 - ####  依赖管理 --> 添加依赖 --> 依赖类型(Python3) --> 自动拆分(是) --> 名称(把下面依赖名称全复制粘贴) --> 确定 
 ```sh
@@ -94,6 +95,7 @@ canvas
 ping3
 jieba
 aiohttp
+execjs
 ```
 - ####  依赖管理 --> 添加依赖 --> 依赖类型(Linux) --> 自动拆分(是) --> 名称(把下面依赖名称全复制粘贴) --> 确定 
 ```sh
